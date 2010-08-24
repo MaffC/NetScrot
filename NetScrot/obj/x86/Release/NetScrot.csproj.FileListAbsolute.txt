@@ -1,0 +1,10 @@
+c:\documents and settings\matthew connelly\my documents\visual studio 2010\Projects\NetScrot35\NetScrot\bin\Release\NetScrot.exe.config
+c:\documents and settings\matthew connelly\my documents\visual studio 2010\Projects\NetScrot35\NetScrot\bin\Release\NetScrot.exe
+c:\documents and settings\matthew connelly\my documents\visual studio 2010\Projects\NetScrot35\NetScrot\bin\Release\NetScrot.pdb
+c:\documents and settings\matthew connelly\my documents\visual studio 2010\Projects\NetScrot35\NetScrot\obj\x86\Release\ResolveAssemblyReference.cache
+c:\documents and settings\matthew connelly\my documents\visual studio 2010\Projects\NetScrot35\NetScrot\obj\x86\Release\NetScrot.frmUsrSettings.resources
+c:\documents and settings\matthew connelly\my documents\visual studio 2010\Projects\NetScrot35\NetScrot\obj\x86\Release\NetScrot.Properties.Resources.resources
+c:\documents and settings\matthew connelly\my documents\visual studio 2010\Projects\NetScrot35\NetScrot\obj\x86\Release\GenerateResource-ResGen.read.1.tlog
+c:\documents and settings\matthew connelly\my documents\visual studio 2010\Projects\NetScrot35\NetScrot\obj\x86\Release\GenerateResource-ResGen.write.1.tlog
+c:\documents and settings\matthew connelly\my documents\visual studio 2010\Projects\NetScrot35\NetScrot\obj\x86\Release\NetScrot.exe
+c:\documents and settings\matthew connelly\my documents\visual studio 2010\Projects\NetScrot35\NetScrot\obj\x86\Release\NetScrot.pdb
