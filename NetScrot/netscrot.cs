@@ -15,12 +15,14 @@ namespace NetScrot {
 		public NotifyIcon tray = new NotifyIcon();
 		public string sURL = "http://cyndle.com/sApi";
 		public string baseURL = "http://cyndle.com/";
+		private Microsoft.Win32.RegistryKey regSet = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Run", true);
 
 		public void upload(NameValueCollection pdata, System.Drawing.Image scrnshot) {
 			scrnshot.Save(Environment.CurrentDirectory + "\\temp.png", System.Drawing.Imaging.ImageFormat.Png);
 			scrnshot.Dispose();
 			tray.Icon = Properties.Resources.uploading;
 			WebClient r = new WebClient();
+			r.Headers["User-Agent"] = "NetScrot/0.6";
 			byte[] scrot = File.ReadAllBytes(Environment.CurrentDirectory + "\\temp.png");
 			pdata.Add("fupld", Convert.ToBase64String(scrot));
 			byte[] resp = null;
@@ -29,18 +31,18 @@ namespace NetScrot {
 			} catch (WebException e) {
 				if (e.Status == WebExceptionStatus.ProtocolError) {
 					HttpWebResponse rsp = (HttpWebResponse) e.Response;
-					if (rsp.StatusCode == HttpStatusCode.Forbidden) {
+					if (rsp.StatusCode == HttpStatusCode.Forbidden)
 						balloonText("Username/Password invalid.", 2);
-					} else if (rsp.StatusCode == HttpStatusCode.BadRequest) {
+					else if (rsp.StatusCode == HttpStatusCode.BadRequest)
 						balloonText("File upload failed.", 2);
-					} else if (rsp.StatusCode == HttpStatusCode.ServiceUnavailable) {
+					else if (rsp.StatusCode == HttpStatusCode.ServiceUnavailable)
 						balloonText("Could not contact Slurp database.", 2);
-					} else {
+					else if ((int) rsp.StatusCode == 418)
+						balloonText("Server is a teapot.", 3);
+					else
 						balloonText("Error: " + (int) rsp.StatusCode, 2);
-					}
-				} else {
+				} else
 					balloonText("File may not have been uploaded. Error was: " + e.Message, 1);
-				}
 				tray.Icon = Properties.Resources.idle;
 				return;
 			}
@@ -51,6 +53,41 @@ namespace NetScrot {
 			}
 			Clipboard.SetText(baseURL + rspns);
 			balloonText("File uploaded, URL copied to your clipboard - " + baseURL + rspns);
+		}
+
+		public void shorten(string lURL) {
+			WebClient r = new WebClient();
+			string result = "";
+			string b64URL = Convert.ToBase64String(Encoding.UTF8.GetBytes(lURL));
+			try {
+				result = r.DownloadString(sURL + "?b64=1&u=" + b64URL);
+			} catch (WebException e) {
+				if (e.Status == WebExceptionStatus.ProtocolError) {
+					HttpWebResponse rsp = (HttpWebResponse) e.Response;
+					if (rsp.StatusCode == HttpStatusCode.BadRequest) {
+						balloonText("Invalid URL", 2);
+						return;
+					} else if (rsp.StatusCode == HttpStatusCode.ServiceUnavailable) {
+						balloonText("Could not shorten URL: Server error", 2);
+						return;
+					} else if (rsp.StatusCode == HttpStatusCode.InternalServerError) {
+						balloonText("Could not shorten URL: Server error. Server may be down or broken.", 2);
+						return;
+					} else if ((int) rsp.StatusCode == 418) {
+						balloonText("Server is a teapot.", 3);
+						return;
+					} else {
+						balloonText("Unknown error: " + (int) rsp.StatusCode, 2);
+						return;
+					}
+				} else {
+					balloonText("URL may not have been shortened. Error was: " + e.Message, 1);
+					return;
+				}
+			}
+			if(result != "")
+				Clipboard.SetText(result);
+			balloonText("URL shortened, URL copied to your clipboard - " + result);
 		}
 
 		public void balloonText(string notifyText) {
@@ -83,15 +120,33 @@ namespace NetScrot {
 				getSettings();
 			}
 			tray.ContextMenu = new ContextMenu(new MenuItem[] {
-				new MenuItem("&Settings", (s, e) => { getSettings(); }),
-				new MenuItem("&About NetScrot", (s, e) => { MessageBox.Show("NetScrot is a small utility which uploads screenshots/images to a Slurp (or API-compatible) install on the internet.\nThis application makes use of icons from the Tango project.", "About NetScrot", MessageBoxButtons.OK); }),
+				new MenuItem("&Login Settings", (s, e) => { getSettings(); }),
+				new MenuItem("&Start with Windows", (s, e) => { swapStartup(); }),
+				new MenuItem("-"),
+				new MenuItem("&About NetScrot", (s, e) => { MessageBox.Show("NetScrot is a small utility which uploads screenshots/images to a Slurp (or API-compatible) install on the internet.\nThis application can also be used to shorten URLs in the same manner.\nThis application makes use of icons from the Tango project.", "About NetScrot", MessageBoxButtons.OK); }),
 				new MenuItem("&Quit", (s, e) => { tray.Visible = false; tray.Dispose(); Environment.Exit(0); })
 			});
+			tray.ContextMenu.MenuItems[1].Checked = getStartup();
 		}
 
 		private void quitting(object sender, EventArgs e) {
 			tray.Visible = false;
 			tray.Dispose();
+		}
+
+		private void swapStartup( ) {
+			if (getStartup())
+				regSet.DeleteValue("NetScrot");
+			else
+				regSet.SetValue("NetScrot", @"""" + Application.ExecutablePath + @"""");
+			tray.ContextMenu.MenuItems[1].Checked = getStartup();
+		}
+
+		private bool getStartup( ) {
+			if (regSet.GetValue("NetScrot") != null)
+				return true;
+			else
+				return false;
 		}
 
 		private void getSettings( ) {

@@ -119,7 +119,7 @@
   </resheader>
   <data name="lblExplain.Text" xml:space="preserve">
     <value>NetScrot uploads any image that's in your clipboard, to your Slurp account.
-Initially, this application only works with the Slurp install available on Cyndle.com
-To initiate an upload, hold down Ctrl-Shift and press Printscreen.</value>
+To initiate an upload, hold down Ctrl-Shift and press Printscreen.
+URLs can also be shortened in the same way. Just copy a URL and press Ctrl-Shift-Printscreen.</value>
   </data>
 </root>
