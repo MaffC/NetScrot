@@ -8,16 +8,18 @@ using System.Collections;
 using System.Collections.Specialized;
 using System.Text;
 using System.Windows.Forms;
+using System.Text.RegularExpressions;
 
 namespace NetScrot {
 	class netscrot {
 		public Utilities.globalKeyboardHook hook = new Utilities.globalKeyboardHook();
 		public NotifyIcon tray = new NotifyIcon();
-		public string sURL = "http://cyndle.com/sApi";
-		public string baseURL = "http://cyndle.com/";
 		private Microsoft.Win32.RegistryKey regSet = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Run", true);
 
 		public void upload(NameValueCollection pdata, System.Drawing.Image scrnshot) {
+			Properties.Settings.Default.Reload();
+			string sURL = Properties.Settings.Default.basedomain + "sApi";
+			string baseURL = Properties.Settings.Default.basedomain;
 			scrnshot.Save(Environment.CurrentDirectory + "\\temp.png", System.Drawing.Imaging.ImageFormat.Png);
 			scrnshot.Dispose();
 			tray.Icon = Properties.Resources.uploading;
@@ -56,6 +58,9 @@ namespace NetScrot {
 		}
 
 		public void shorten(string lURL) {
+			Properties.Settings.Default.Reload();
+			string sURL = Properties.Settings.Default.basedomain + "sApi";
+			string baseURL = Properties.Settings.Default.basedomain;
 			WebClient r = new WebClient();
 			string result = "";
 			string b64URL = Convert.ToBase64String(Encoding.UTF8.GetBytes(lURL));
@@ -154,6 +159,11 @@ namespace NetScrot {
 			if (settings.ShowDialog() == DialogResult.OK)
 				settings.Dispose();
 			Properties.Settings.Default.Reload();
+		}
+
+		static public bool verifyBaseDomain(string baseDomain) {
+			Regex urlValidator = new Regex(@"^(http|https|sftp|ftp)://(([\w-]+)\.([a-z]{2,10}))+([\w\.\?&_/=%\-\[\]\+#])*\b", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+			return urlValidator.IsMatch(baseDomain);
 		}
 	}
 }

@@ -15,6 +15,7 @@ namespace NetScrot {
 			this.FormClosing += new FormClosingEventHandler(closeify);
 			this.Load += new EventHandler(loadify);
 			this.Icon = Properties.Resources.idle;
+			txtBaseDomain.Text = Properties.Settings.Default.basedomain;
 		}
 
 		public void loadify(object sender, EventArgs e) {
@@ -42,6 +43,8 @@ namespace NetScrot {
 		}
 
 		private void returnToSender( ) {
+			if (txtBaseDomain.Text.Substring((txtBaseDomain.Text.Length - 1)) != "/")
+				txtBaseDomain.Text += "/";
 			if (txtUsername.Text.Length == 0) {
 				MessageBox.Show("Please enter your username.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
 				return;
@@ -50,10 +53,20 @@ namespace NetScrot {
 				MessageBox.Show("Please enter your password.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
 				return;
 			}
+			if (txtBaseDomain.Text.Length == 0) {
+				MessageBox.Show("Please enter your base URL");
+				return;
+			}
+			if (!netscrot.verifyBaseDomain(txtBaseDomain.Text)) {
+				MessageBox.Show("Base URL is invalid. Please ensure it looks like this: http://google.com/");
+				return;
+			}
 			if (txtUsername.Text != Properties.Settings.Default.username)
 				Properties.Settings.Default.username = txtUsername.Text;
 			if (txtPass.Text != "Password" && txtPass.Text != Properties.Settings.Default.password)
 				Properties.Settings.Default.password = txtPass.Text;
+			if (txtBaseDomain.Text != Properties.Settings.Default.basedomain)
+				Properties.Settings.Default.basedomain = txtBaseDomain.Text;
 			if (Properties.Settings.Default.firstrun)
 				Properties.Settings.Default.firstrun = false;
 			Properties.Settings.Default.Save();

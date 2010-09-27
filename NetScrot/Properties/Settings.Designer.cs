@@ -58,5 +58,17 @@ namespace NetScrot.Properties {
                 this["password"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string basedomain {
+            get {
+                return ((string)(this["basedomain"]));
+            }
+            set {
+                this["basedomain"] = value;
+            }
+        }
     }
 }
