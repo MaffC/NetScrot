@@ -1,0 +1,17 @@
+body {
+	background-color: #cccccc;
+	font-family: Helvetica, Arial, sans-serif;
+	color: #c63131;
+	text-align: center;
+	margin: 0;
+	padding: 150px 0 0 0;
+}
+#wrapper {
+	width: 95%;
+	margin: auto;
+}
+h1 {
+	font-size: 38px;
+	text-transform: uppercase;
+	font-weight: bold;
+}
