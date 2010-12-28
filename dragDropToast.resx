@@ -117,9 +117,7 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="lblExplain.Text" xml:space="preserve">
-    <value>NetScrot uploads any image that's in your clipboard, to your Slurp account.
-To initiate an upload, hold down Ctrl-Win and press Printscreen.
-URLs can also be shortened in the same way. Just copy a URL and press Ctrl-Win-Printscreen.</value>
-  </data>
+  <metadata name="$this.Locked" type="System.Boolean, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
 </root>

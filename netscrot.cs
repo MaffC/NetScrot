@@ -10,29 +10,50 @@ using System.Text;
 using System.Windows.Forms;
 using System.Text.RegularExpressions;
 
+//I am well aware of the issue regarding the responsiveness of this software, but I really have no idea what's causing it.
+
+//To whoever likes knowing how their upload is going, beyond just "0, 50%, 100%", I'm sorry but I can't understand how the hell to implement more accurate
+//progress tracking using the WebClient class.
+
 namespace NetScrot {
 	class netscrot {
 		public Utilities.globalKeyboardHook hook = new Utilities.globalKeyboardHook();
 		public NotifyIcon tray = new NotifyIcon();
 		private Microsoft.Win32.RegistryKey regSet = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Run", true);
+		private long maxupload = 12582912;
+		public static bool isDroppedItemURL = false;
+		public static string uri = "";
+		private bool isCollectionPointOpen = false;
 
-		public void upload(NameValueCollection pdata, System.Drawing.Image scrnshot) {
+		public void uploadScreenshot(NameValueCollection pdata, System.Drawing.Image scrnshot) {
 			Properties.Settings.Default.Reload();
 			string sURL = Properties.Settings.Default.basedomain + "sApi";
-			string baseURL = Properties.Settings.Default.basedomain;
 			scrnshot.Save(Environment.CurrentDirectory + "\\temp.png", System.Drawing.Imaging.ImageFormat.Png);
 			scrnshot.Dispose();
-			tray.Icon = Properties.Resources.uploading;
 			WebClient r = new WebClient();
-			r.Headers["User-Agent"] = "NetScrot/0.6";
+			r.Headers["User-Agent"] = "NetScrot/0.7";
 			byte[] scrot = File.ReadAllBytes(Environment.CurrentDirectory + "\\temp.png");
+			if (scrot.LongLength > maxupload) {
+				balloonText("File too large to upload (internal limit is 12MB)", 2);
+				return;
+			}
+			tray.Icon = Properties.Resources.uploading;
+			tray.Text = "NetScrot - Uploading";
 			pdata.Add("fupld", Convert.ToBase64String(scrot));
-			byte[] resp = null;
-			try {
-				resp = r.UploadValues(sURL, "POST", pdata);
-			} catch (WebException e) {
-				if (e.Status == WebExceptionStatus.ProtocolError) {
-					HttpWebResponse rsp = (HttpWebResponse) e.Response;
+			r.UploadProgressChanged += new UploadProgressChangedEventHandler(r_UploadProgressChanged);
+			r.UploadValuesCompleted += new UploadValuesCompletedEventHandler(r_UploadValuesCompleted);
+			r.UploadValuesAsync(new Uri(sURL), "POST", pdata);
+		}
+
+		private void r_UploadProgressChanged(object sender, UploadProgressChangedEventArgs e) {
+			tray.Text = "NetScrot - Uploading (" + e.ProgressPercentage + "%)";
+		}
+
+		private void r_UploadValuesCompleted(object sender, UploadValuesCompletedEventArgs e) {
+			if (e.Error != null) {
+				WebException ex = (WebException)e.Error;
+				if (ex.Status == WebExceptionStatus.ProtocolError) {
+					HttpWebResponse rsp = (HttpWebResponse) ex.Response;
 					if (rsp.StatusCode == HttpStatusCode.Forbidden)
 						balloonText("Username/Password invalid.", 2);
 					else if (rsp.StatusCode == HttpStatusCode.BadRequest)
@@ -44,17 +65,73 @@ namespace NetScrot {
 					else
 						balloonText("Error: " + (int) rsp.StatusCode, 2);
 				} else
-					balloonText("File may not have been uploaded. Error was: " + e.Message, 1);
+					balloonText("File may not have been uploaded. Error was: " + ex.Message, 1);
 				tray.Icon = Properties.Resources.idle;
 				return;
 			}
 			tray.Icon = Properties.Resources.idle;
-			string rspns = Encoding.UTF8.GetString(resp);
+			tray.Text = "NetScrot";
+			string rspns = Encoding.UTF8.GetString(e.Result);
 			if (rspns.Length != 4) {
 				balloonText("File upload may have failed: " + rspns, 1);
 			}
-			Clipboard.SetText(baseURL + rspns);
-			balloonText("File uploaded, URL copied to your clipboard - " + baseURL + rspns);
+			clipboardContentSet(Properties.Settings.Default.basedomain + rspns);
+			balloonText("File uploaded, URL copied to your clipboard - " + Properties.Settings.Default.basedomain + rspns);
+		}
+
+		public void uploadFile(NameValueCollection pdata, string fileuri) {
+			Properties.Settings.Default.Reload();
+			string sURL = Properties.Settings.Default.basedomain + "sApi";
+			string baseURL = Properties.Settings.Default.basedomain;
+			pdata.Add("fn", Path.GetFileName(fileuri));
+			if (new FileInfo(fileuri).Length > maxupload) {
+				balloonText("File too large to upload (internal limit is 12MB)", 2);
+				return;
+			}
+			//Checking filesize before reading the file prevents it from freaking the shit out if you give it a 25gb file.
+			byte[] upfile = File.ReadAllBytes(fileuri);
+			tray.Icon = Properties.Resources.uploading;
+			tray.Text = "NetScrot - Uploading";
+			WebClient r = new WebClient();
+			r.Headers["User-Agent"] = "NetScrot/0.6";
+			pdata.Add("fupld", Convert.ToBase64String(upfile));
+			r.UploadProgressChanged += new UploadProgressChangedEventHandler(r_FileUploadProgressChanged);
+			r.UploadValuesCompleted += new UploadValuesCompletedEventHandler(r_FileUploadValuesCompleted);
+			r.UploadValuesAsync(new Uri(sURL), "POST", pdata);
+		}
+
+		private void r_FileUploadProgressChanged(object sender, UploadProgressChangedEventArgs e) {
+			tray.Text = "NetScrot - Uploading (" + e.ProgressPercentage + "%)";
+		}
+
+		private void r_FileUploadValuesCompleted(object sender, UploadValuesCompletedEventArgs e) {
+			if (e.Error != null) {
+				WebException ex = (WebException) e.Error;
+				if (ex.Status == WebExceptionStatus.ProtocolError) {
+					HttpWebResponse rsp = (HttpWebResponse) ex.Response;
+					if (rsp.StatusCode == HttpStatusCode.Forbidden)
+						balloonText("Username/Password invalid.", 2);
+					else if (rsp.StatusCode == HttpStatusCode.BadRequest)
+						balloonText("File upload failed.", 2);
+					else if (rsp.StatusCode == HttpStatusCode.ServiceUnavailable)
+						balloonText("Could not contact Slurp database.", 2);
+					else if ((int) rsp.StatusCode == 418)
+						balloonText("Server is a teapot.", 3);
+					else
+						balloonText("Error: " + (int) rsp.StatusCode, 2);
+				} else
+					balloonText("File may not have been uploaded. Error was: " + ex.Message, 1);
+				tray.Icon = Properties.Resources.idle;
+				return;
+			}
+			tray.Icon = Properties.Resources.idle;
+			tray.Text = "NetScrot";
+			string rspns = Encoding.UTF8.GetString(e.Result);
+			if (rspns.Length != 4) {
+				balloonText("File upload may have failed: " + rspns, 1);
+			}
+			clipboardContentSet(Properties.Settings.Default.basedomain + rspns);
+			balloonText("File uploaded, URL copied to your clipboard - " + Properties.Settings.Default.basedomain + rspns);
 		}
 
 		public void shorten(string lURL) {
@@ -95,8 +172,21 @@ namespace NetScrot {
 			balloonText("URL shortened, URL copied to your clipboard - " + result);
 		}
 
+		public void upload(NameValueCollection pdata) {
+			if (isDroppedItemURL)
+				shorten(uri);
+			else
+				uploadFile(pdata, uri);
+			isDroppedItemURL = false;
+			uri = "";
+		}
+
 		public void balloonText(string notifyText) {
 			balloonText(notifyText, 0);
+		}
+
+		public void clipboardContentSet(string setContent) {
+			Clipboard.SetText(setContent);
 		}
 
 		public void balloonText(string notifyText, int warningLevel) {
@@ -132,6 +222,36 @@ namespace NetScrot {
 				new MenuItem("&Quit", (s, e) => { tray.Visible = false; tray.Dispose(); Environment.Exit(0); })
 			});
 			tray.ContextMenu.MenuItems[1].Checked = getStartup();
+			tray.MouseClick += new MouseEventHandler(tray_MouseClick);
+		}
+
+		private void tray_MouseClick(object sender, MouseEventArgs e) {
+			if (e.Button != MouseButtons.Left)
+				return;
+			if (Properties.Settings.Default.firstrun)
+				return;
+			if (isCollectionPointOpen)
+				return;
+			dragDropToast tmpToast = new dragDropToast();
+			tmpToast.Top = Screen.PrimaryScreen.WorkingArea.Height - (tmpToast.Height + 5);
+			tmpToast.Left = Screen.PrimaryScreen.WorkingArea.Width - (tmpToast.Width + 5);
+			isCollectionPointOpen = true;
+			DialogResult rslt = tmpToast.ShowDialog();
+			tmpToast.Dispose();
+			isCollectionPointOpen = false;
+			if (rslt != DialogResult.OK) {
+				if (rslt == DialogResult.Abort)
+					balloonText("NetScrot only accepts files, images and URLs. Please don't attempt to upload an entire folder.", 2);
+				return;
+			}
+			NameValueCollection postdata = new NameValueCollection();
+			postdata.Add("u", Properties.Settings.Default.username);
+			postdata.Add("p", Properties.Settings.Default.password);
+			System.Threading.Thread uthrd = new System.Threading.Thread(( ) => {
+				upload(postdata);
+			});
+			uthrd.SetApartmentState(System.Threading.ApartmentState.STA);
+			uthrd.Start();
 		}
 
 		private void quitting(object sender, EventArgs e) {

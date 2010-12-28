@@ -67,6 +67,13 @@ namespace NetScrot.Properties {
             }
         }
         
+        internal static System.Drawing.Bitmap netscrot_bg {
+            get {
+                object obj = ResourceManager.GetObject("netscrot_bg", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
         internal static System.Drawing.Icon uploading {
             get {
                 object obj = ResourceManager.GetObject("uploading", resourceCulture);

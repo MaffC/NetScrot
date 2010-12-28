@@ -17,7 +17,7 @@ namespace NetScrot {
 
 		private static bool kprtscrn = false;
 		private static bool klctrl = false;
-		private static bool klshift = false;
+		private static bool klwin = false;
 #if USE_ALT_METHOD
         private static bool kalt = false;
 #endif
@@ -34,7 +34,7 @@ namespace NetScrot {
 			Application.SetCompatibleTextRenderingDefault(false);
 			nscrot.hook.HookedKeys.Add(Keys.PrintScreen);
 			nscrot.hook.HookedKeys.Add(Keys.LControlKey);
-			nscrot.hook.HookedKeys.Add(Keys.LShiftKey);
+			nscrot.hook.HookedKeys.Add(Keys.LWin);
 			nscrot.hook.KeyDown += new KeyEventHandler(hook_KeyDown);
 			nscrot.hook.KeyUp += new KeyEventHandler(hook_KeyUp);
 			nscrot.init();
@@ -55,7 +55,7 @@ namespace NetScrot {
 				Image scrt = Clipboard.GetImage();
 				System.Threading.Thread upld = new System.Threading.Thread(( ) =>
 				{
-					nscrot.upload(postdata, scrt);
+					nscrot.uploadScreenshot(postdata, scrt);
 				});
 				upld.SetApartmentState(System.Threading.ApartmentState.STA);
 				upld.Start();
@@ -73,7 +73,7 @@ namespace NetScrot {
 		private static void hook_KeyUp(object sender, KeyEventArgs e) {
 			kprtscrn = false;
 			klctrl = false;
-			klshift = false;
+			klwin = false;
 		}
 
 		private static void hook_KeyDown(object sender, KeyEventArgs e) {
@@ -81,11 +81,11 @@ namespace NetScrot {
 				return;
 			if (e.KeyCode == Keys.PrintScreen)
 				kprtscrn = true;
-			if (e.KeyCode == Keys.LShiftKey)
-				klshift = true;
+			if (e.KeyCode == Keys.LWin)
+				klwin = true;
 			if (e.KeyCode == Keys.LControlKey)
 				klctrl = true;
-			if (kprtscrn && klctrl && klshift)
+			if (kprtscrn && klctrl && klwin)
 				runUpload();
 		}
 	}

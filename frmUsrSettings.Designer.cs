@@ -25,6 +25,9 @@
 		private void InitializeComponent( ) {
 			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmUsrSettings));
 			this.grpUser = new System.Windows.Forms.GroupBox();
+			this.spltBaseDomain = new System.Windows.Forms.SplitContainer();
+			this.lblBaseDomain = new System.Windows.Forms.Label();
+			this.txtBaseDomain = new System.Windows.Forms.TextBox();
 			this.spltUsrPass = new System.Windows.Forms.SplitContainer();
 			this.spltUsr = new System.Windows.Forms.SplitContainer();
 			this.lblUsername = new System.Windows.Forms.Label();
@@ -34,10 +37,10 @@
 			this.txtPass = new System.Windows.Forms.TextBox();
 			this.lblExplain = new System.Windows.Forms.Label();
 			this.btnSave = new System.Windows.Forms.Button();
-			this.spltBaseDomain = new System.Windows.Forms.SplitContainer();
-			this.lblBaseDomain = new System.Windows.Forms.Label();
-			this.txtBaseDomain = new System.Windows.Forms.TextBox();
 			this.grpUser.SuspendLayout();
+			this.spltBaseDomain.Panel1.SuspendLayout();
+			this.spltBaseDomain.Panel2.SuspendLayout();
+			this.spltBaseDomain.SuspendLayout();
 			this.spltUsrPass.Panel1.SuspendLayout();
 			this.spltUsrPass.Panel2.SuspendLayout();
 			this.spltUsrPass.SuspendLayout();
@@ -47,9 +50,6 @@
 			this.spltPassword.Panel1.SuspendLayout();
 			this.spltPassword.Panel2.SuspendLayout();
 			this.spltPassword.SuspendLayout();
-			this.spltBaseDomain.Panel1.SuspendLayout();
-			this.spltBaseDomain.Panel2.SuspendLayout();
-			this.spltBaseDomain.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// grpUser
@@ -63,6 +63,42 @@
 			this.grpUser.TabIndex = 0;
 			this.grpUser.TabStop = false;
 			this.grpUser.Text = "Login Settings";
+			// 
+			// spltBaseDomain
+			// 
+			this.spltBaseDomain.IsSplitterFixed = true;
+			this.spltBaseDomain.Location = new System.Drawing.Point(3, 64);
+			this.spltBaseDomain.Name = "spltBaseDomain";
+			// 
+			// spltBaseDomain.Panel1
+			// 
+			this.spltBaseDomain.Panel1.Controls.Add(this.lblBaseDomain);
+			// 
+			// spltBaseDomain.Panel2
+			// 
+			this.spltBaseDomain.Panel2.Controls.Add(this.txtBaseDomain);
+			this.spltBaseDomain.Size = new System.Drawing.Size(286, 20);
+			this.spltBaseDomain.SplitterDistance = 60;
+			this.spltBaseDomain.TabIndex = 1;
+			this.spltBaseDomain.TabStop = false;
+			// 
+			// lblBaseDomain
+			// 
+			this.lblBaseDomain.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.lblBaseDomain.Location = new System.Drawing.Point(0, 0);
+			this.lblBaseDomain.Name = "lblBaseDomain";
+			this.lblBaseDomain.Size = new System.Drawing.Size(60, 20);
+			this.lblBaseDomain.TabIndex = 0;
+			this.lblBaseDomain.Text = "Base URL";
+			this.lblBaseDomain.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+			// 
+			// txtBaseDomain
+			// 
+			this.txtBaseDomain.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.txtBaseDomain.Location = new System.Drawing.Point(0, 0);
+			this.txtBaseDomain.Name = "txtBaseDomain";
+			this.txtBaseDomain.Size = new System.Drawing.Size(222, 20);
+			this.txtBaseDomain.TabIndex = 0;
 			// 
 			// spltUsrPass
 			// 
@@ -183,42 +219,6 @@
 			this.btnSave.UseVisualStyleBackColor = true;
 			this.btnSave.Click += new System.EventHandler(this.btnSave_Click);
 			// 
-			// spltBaseDomain
-			// 
-			this.spltBaseDomain.IsSplitterFixed = true;
-			this.spltBaseDomain.Location = new System.Drawing.Point(3, 64);
-			this.spltBaseDomain.Name = "spltBaseDomain";
-			// 
-			// spltBaseDomain.Panel1
-			// 
-			this.spltBaseDomain.Panel1.Controls.Add(this.lblBaseDomain);
-			// 
-			// spltBaseDomain.Panel2
-			// 
-			this.spltBaseDomain.Panel2.Controls.Add(this.txtBaseDomain);
-			this.spltBaseDomain.Size = new System.Drawing.Size(286, 20);
-			this.spltBaseDomain.SplitterDistance = 60;
-			this.spltBaseDomain.TabIndex = 1;
-			this.spltBaseDomain.TabStop = false;
-			// 
-			// lblBaseDomain
-			// 
-			this.lblBaseDomain.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.lblBaseDomain.Location = new System.Drawing.Point(0, 0);
-			this.lblBaseDomain.Name = "lblBaseDomain";
-			this.lblBaseDomain.Size = new System.Drawing.Size(60, 20);
-			this.lblBaseDomain.TabIndex = 0;
-			this.lblBaseDomain.Text = "Base URL";
-			this.lblBaseDomain.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-			// 
-			// txtBaseDomain
-			// 
-			this.txtBaseDomain.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.txtBaseDomain.Location = new System.Drawing.Point(0, 0);
-			this.txtBaseDomain.Name = "txtBaseDomain";
-			this.txtBaseDomain.Size = new System.Drawing.Size(222, 20);
-			this.txtBaseDomain.TabIndex = 0;
-			// 
 			// frmUsrSettings
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -234,6 +234,10 @@
 			this.Name = "frmUsrSettings";
 			this.Text = "NetScrot Settings";
 			this.grpUser.ResumeLayout(false);
+			this.spltBaseDomain.Panel1.ResumeLayout(false);
+			this.spltBaseDomain.Panel2.ResumeLayout(false);
+			this.spltBaseDomain.Panel2.PerformLayout();
+			this.spltBaseDomain.ResumeLayout(false);
 			this.spltUsrPass.Panel1.ResumeLayout(false);
 			this.spltUsrPass.Panel2.ResumeLayout(false);
 			this.spltUsrPass.ResumeLayout(false);
@@ -245,10 +249,6 @@
 			this.spltPassword.Panel2.ResumeLayout(false);
 			this.spltPassword.Panel2.PerformLayout();
 			this.spltPassword.ResumeLayout(false);
-			this.spltBaseDomain.Panel1.ResumeLayout(false);
-			this.spltBaseDomain.Panel2.ResumeLayout(false);
-			this.spltBaseDomain.Panel2.PerformLayout();
-			this.spltBaseDomain.ResumeLayout(false);
 			this.ResumeLayout(false);
 
 		}
